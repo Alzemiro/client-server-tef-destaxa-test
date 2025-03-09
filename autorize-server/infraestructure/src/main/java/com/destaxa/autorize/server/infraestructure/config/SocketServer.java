@@ -1,5 +1,6 @@
 package com.destaxa.autorize.server.infraestructure.config;
 
+import com.destaxa.autorize.server.infraestructure.usecase.AuthorizationService;
 import jakarta.annotation.PostConstruct;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
@@ -21,7 +22,7 @@ public class SocketServer {
 
     private final AuthorizationService authorizationService;
 
-    public SocketServer(GenericPackager packager, AuthotizationService authotizationService){
+    public SocketServer(GenericPackager packager, AuthorizationService authotizationService){
         this.authorizationService = authotizationService;
         this.packager = packager;
     }
