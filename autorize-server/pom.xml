@@ -29,7 +29,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jpos.version>2.1.9</jpos.version>
+        <jpos.version>2.1.7</jpos.version>
     </properties>
 
     <dependencies>
@@ -38,6 +38,11 @@
             <groupId>org.jpos</groupId>
             <artifactId>jpos</artifactId>
             <version>${jpos.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
         <dependency>
