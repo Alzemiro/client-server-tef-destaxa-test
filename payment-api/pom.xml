@@ -30,7 +30,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jpos.version>2.1.9</jpos.version>
+
     </properties>
 
     <dependencies>
@@ -46,9 +46,15 @@
         </dependency>
 
         <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.jpos</groupId>
             <artifactId>jpos</artifactId>
-            <version>${jpos.version}</version>
+           <version>2.1.9</version>
         </dependency>
 
         <dependency>
