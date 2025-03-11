@@ -1,12 +1,17 @@
 package com.destaxa.autorize.server.infraestructure.config;
 
+import com.destaxa.autorize.server.infraestructure.application.usecaseimpl.AuthorizationServiceImpl;
 import com.destaxa.autorize.server.infraestructure.usecase.AuthorizationService;
+import com.destaxa.autorize.server.infraestructure.usecase.CalculateAuthorizationCode;
 import jakarta.annotation.PostConstruct;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.packager.GenericPackager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,6 +20,8 @@ import java.util.concurrent.Executors;
 
 @Component
 public class SocketServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
     private final int port = 9999; // Porta do servidor localhost
     private final ExecutorService executor = Executors.newFixedThreadPool(10); // Pool de threads para processar as conexões
@@ -30,15 +37,15 @@ public class SocketServer {
     @PostConstruct
     public void start(){
         try(ServerSocket serverSocket = new ServerSocket(port)){
-            System.out.println("Socket Server started on: " + port);
+            logger.info("Socket Server started on port {}", port);
 
-            while (!serverSocket.isClosed()){
+            while (true){
                 Socket clientSocket = serverSocket.accept();
                 executor.execute(new ClientHandler(clientSocket, packager, authorizationService));
             }
 
         } catch (IOException e) {
-            System.err.println("Error on server start: " + e.getMessage());
+            logger.error("Error on server start: {}", e.getMessage());
         }
     }
 
@@ -52,6 +59,7 @@ public class SocketServer {
             this.clientSocket = clientSocket;
             this.packager = packager;
             this.authorizationService = authorizationService;
+
         }
 
         @Override
@@ -61,11 +69,18 @@ public class SocketServer {
                 // Lê a mensagem ISO8583 do cliente
                 ISOMsg isoMsg = new ISOMsg();
                 isoMsg.setPackager(packager);
-                byte[] bytesRead = clientSocket.getInputStream().readNBytes(1024);
-                isoMsg.unpack(bytesRead);
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(clientSocket.getInputStream());
+
+                isoMsg.unpack(bufferedInputStream);
+                logger.info("Received ISO8583 message: {}", isoMsg);
+                isoMsg.dump(System.out, "");
 
                 // Processa a mensagem ISO8583
                 ISOMsg responseMsg = authorizationService.authorize(isoMsg);
+                responseMsg.setHeader("ISO1987".getBytes());
+
+                logger.info("Sending ISO8583 response: {}", responseMsg);
+                responseMsg.dump(System.out, "");
 
                 // Envia a resposta para o cliente
                 responseMsg.setPackager(packager);
@@ -73,12 +88,12 @@ public class SocketServer {
                 clientSocket.getOutputStream().write(responseBytes);
 
             } catch (IOException | ISOException e) {
-                System.err.println("Error while process the client connection: " + e.getMessage());
+                logger.error("Error while processing client connection: {}", e.getMessage());
             } finally {
                 try {
                     clientSocket.close();
                 }catch (IOException e){
-                    System.err.println("Error when client connection is closed: " + e.getMessage());
+                    logger.error("Error when closing client connection: {}", e.getMessage());
                 }
             }
 

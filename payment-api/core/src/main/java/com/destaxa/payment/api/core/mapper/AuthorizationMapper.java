@@ -6,6 +6,6 @@ import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 
 public interface AuthorizationMapper {
-    ISOMsg toIsoMessage(AuthorizationRequest request) throws ISOException;
+    ISOMsg toIsoMessage(AuthorizationRequest request, String xIdentifier) throws ISOException;
     AuthorizationResponse toAuthorizationResponse(ISOMsg isoMsg);
 }

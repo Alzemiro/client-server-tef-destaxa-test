@@ -11,7 +11,6 @@ public class NsuGenerator {
 
     public static String generateNsu() {
         int current = counter.incrementAndGet();
-        String timestamp = DateTimeFormat.forPattern("yyyyMMddHHmmss").print(DateTime.now());
-        return String.format("06d", current);
+        return String.format("%06d", current);
     }
 }
